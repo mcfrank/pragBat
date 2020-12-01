@@ -26,15 +26,15 @@ library(lubridate)
 ```
 
 ```{r}
-files <- dir("~/Work/Local/PragBat/raw_data2/")
+files <- dir("~/Work/Local/PragBat/raw_data3/")
 
 raw_data <- data_frame()
 for (f in files) {
-  jf <- paste("~/Work/Local/PragBat/raw_data2/",f,sep="")
+  jf <- paste("~/Work/Local/PragBat/raw_data3/",f,sep="")
   jd <- jsonlite::fromJSON(paste(readLines(jf), collapse=""))
-  date <- str_sub(jf,34,str_length(jf)-11)
-  id <- as_data_frame(jd$data$data) %>% mutate(test_date = date,
-                                               trial = as.character(trial))
+  date <- str_sub(jf,-22,str_length(jf)-14)
+  id <- as_data_frame(jd) %>% mutate(test_date = date,
+                                              trial = as.character(trial))
   raw_data <- bind_rows(raw_data, id)
 }
 
@@ -50,7 +50,7 @@ task_data <- raw_data%>%
   separate(subid, into = c("id","test_day"), sep="_")
 
 
-log <- read_xlsx("../../../../Cloud/PragBat/vpl_pragBat2.xlsx", sheet = 1)%>%
+log <- read_xlsx("../../../../Cloud/PragBat/vpl_pragBat3.xlsx", sheet = 1)%>%
   mutate(age = as.numeric(difftime(as.Date(as.character(test_day_1),format="%Y%m%d"), as.Date(as.character(birthday),format="%Y%m%d"), units = "days"))/365.25,
          age_num_month = lubridate::time_length(difftime(as.Date(as.character(test_day_1),format="%Y%m%d"), as.Date(as.character(birthday),format="%Y%m%d")), "month"),
           age_month = round(age_num_month)/12,
@@ -68,8 +68,8 @@ data <- task_data %>%
                         trial),
          z_age = age - mean(age),
          z_trial = trial - mean(trial),
-         item = ifelse(task == "card_sorting", sample, ifelse(task == "discourse_continuity", target1, leftObject)))%>%
-    select(id, test_day, subage,age,age_month, task,item, trial, correct, z_age, z_trial)
+         item = ifelse(task == "card_sorting", sample,leftObject) )%>%
+    select(id, test_day, subage,age, task,item, trial, correct, z_age, z_trial)
 
 
  # write_csv(data, "../data/data_r2.csv")
@@ -171,7 +171,6 @@ reli <- data%>%
 ```
 
 
-
 ```{r}
 cor <- data%>%
   filter(task != "training")%>%
@@ -206,57 +205,4 @@ ggplot(cor, aes(x = rowname, y = task, fill = cor))+
 ```
 
 
-
-# Discourse continuity by category
-
-```{r}
-
-con_data <- task_data%>%
-  filter(task == "discourse_continuity")%>%
-  filter(!is.na(correct))
-
-pc1 <- con_data%>%
-  group_by(target1,subage, id) %>%
-  summarise(correct = mean(correct))
-
-pc2 <- pc1 %>%
-  group_by(target1,subage) %>%
-  tidyboot_mean(column = correct)
-
-ggplot()+
-  geom_hline(yintercept = 1/3, lty=2)+
-  geom_jitter( data = pc1, aes(x = subage, y = correct, col = target1), position = position_jitterdodge(jitter.width = .1,jitter.height = .025, dodge.width = .75 ), alpha = .3)+
-  geom_pointrange(data = pc2, aes(x = subage, y = mean, ymin = ci_lower, ymax = ci_upper, col = target1), position = position_dodge(width = .75), pch = 4)+
-  #facet_grid(~experiment)+
-  labs(x="Age",y="Proportion correct")+
-  theme_few()+
-  scale_color_colorblind(name = "Category")
-```
-
-
-# Data file Spin-off
-
-```{r}
-item_info <- data_frame(
-  task = c(rep("mutual_exclusivity",10),rep("simple_inf",10),rep("ad_hoc_implicature",10),rep("discourse_continuity",10),rep("card_sorting",12)),
-  trial = c(rep(1:10,4),1:12), 
-  item2 = c(rep(c("carrot","garlic","eggplant","duck","horseshoe"),2),rep(c("bear","robot","rocket","truck","dino"),2), rep(c("box","chair","table","plate","house"),2),rep(NA,22))
-)
-
-retest_ids <- data %>%
-  filter(test_day == 2)%>%
-  group_by(id)%>%
-  summarise(n())%>%
-  pull(id)
-
-data %>%
-  filter(id %in% retest_ids)%>%
-  select(-z_age, -z_trial)%>%
-  left_join(item_info)%>%
-  mutate(item = ifelse(task == "mutual_exclusivity" | task == "simple_inf" | task == "ad_hoc_implicature", item2,item))%>%
-  select(id, test_day, subage, age, age_month, task, trial, item, correct )%>%
-  mutate(c_age_month = age_month - min(age_month),
-         c_age = age - min(age))%>%
-  write_csv("../../../Spin-off/spin-off/data/data.csv")
-```
 

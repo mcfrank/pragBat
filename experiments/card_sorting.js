@@ -18,12 +18,12 @@ var sort = {
         // Show the finish slide.
         showSlide("select");
         setTimeout(function () {
-            turk.submit(sort)
+            downloadData(sort.data)
         }, 500);
     },
 
 
-    // unbind and shift variables between trials      
+    // unbind and shift variables between trials
     newtrial: function () {
 
         $(".target_l").css("border", "none")
@@ -87,7 +87,7 @@ var sort = {
 
         $("#sample").css({
             bottom: "100px",
-            left: "400px",
+            left: "50%",
             opacity: 1
         })
 
@@ -113,14 +113,14 @@ var sort = {
         }
 
         $(".target_l").click(function () {
-            
+
             event.target.style.border = '5px solid orange';
 
             $(".selector").show();
 
             $("#sample").animate({
                 bottom: "300px",
-                left: "100px",
+                left: "25%",
                 opacity: 0
             }, {
                 duration: 1000
@@ -156,13 +156,13 @@ var sort = {
             };
 
 
-            // data collected  
+            // data collected
             data = {
                 subid: train.subid,
                 subage: train.subage,
                 phase: sort.phase[0],
                 task: "card_sorting",
-                sample: sort.sample[0],
+                item: sort.sample[0],
                 trial: sort.trial[0],
                 leftObject: "blue_rabbit",
                 leftObject: "red_boat",
@@ -173,7 +173,7 @@ var sort = {
             sort.data.push(data);
         });
 
-        
+
         $(".target_r").click(function () {
 
             $(".selector").show();
@@ -182,7 +182,7 @@ var sort = {
 
             $("#sample").animate({
                 bottom: "300px",
-                left: "700px",
+                left: "75%",
                 opacity: 0
             }, {
                 duration: 1000
@@ -218,13 +218,13 @@ var sort = {
             };
 
 
-            // data collected  
+            // data collected
             data = {
                 subid: train.subid,
                 subage: train.subage,
                 phase: sort.phase[0],
                 task: "card_sorting",
-                sample: sort.sample[0],
+                item: sort.sample[0],
                 trial: sort.trial[0],
                 leftObject: "blue_rabbit",
                 leftObject: "red_boat",

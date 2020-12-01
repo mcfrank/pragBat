@@ -24,7 +24,7 @@ var simple_inf = {
       showSlide("select");
       $(".table_l").show();
       $(".table_r").show();
-      setTimeout(function() { turk.submit(simple_inf) }, 500);
+      setTimeout(function() { downloadData(simple_inf.data) }, 500);
     },
 
 
@@ -96,7 +96,7 @@ var simple_inf = {
         sourceSound("sound/simpinf/"+simple_inf.object[0]+"_which.mp3");
         playSound();
 
-      }, 3000)
+      }, 2000)
 
       choiceLeftInfObject("images/empty.png")
       choiceRightInfObject("images/empty.png")
@@ -182,7 +182,7 @@ var simple_inf = {
             subage: train.subage,
             task: "simple_inf",
             trial: simple_inf.trial[0],
-            agent: simple_inf.agents[0],
+            item: simple_inf.object[0],
             leftObject: leftObject,
             rightObject: rightObject,
             switch: simple_inf.targetSwitch[0],
@@ -246,7 +246,7 @@ var simple_inf = {
             subage: train.subage,
             task: "simple_inf",
             trial: simple_inf.trial[0],
-            agent: simple_inf.agents[0],
+            item: simple_inf.object[0],
             leftObject: leftObject,
             rightObject: rightObject,
             switch: simple_inf.targetSwitch[0],
@@ -335,7 +335,7 @@ var simple_inf = {
         sourceSound("sound/simpinf/"+simple_inf.object[0]+"_label.mp3");
         playSound();
 
-        pause("moveButton2",7000);
+        pause("moveButton2",5000);
 
         if (simple_inf.inf[0] == "left"){
 
@@ -345,60 +345,61 @@ showInfAgent(simple_inf.agents[0],"straight")
         setTimeout(function() {
           showInfAgent(simple_inf.agents[0],"point_l")
 
-          $("#inf_ob_l").animate({bottom: '140', queue:  true},300)
+          $("#inf_ob_l").animate({bottom: '30%', queue:  true},300)
 
-          $("#inf_ob_l").animate({bottom: '100', queue:  true},300)
-        }, 1500)
+          $("#inf_ob_l").animate({bottom: '25%', queue:  true},300)
+        }, 000)
 
 
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"look_l")
-          }, 4300)
+          },2000)
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"point_l")
 
-            $("#inf_ob_l").animate({bottom: '140', queue:  false},300)
+            $("#inf_ob_l").animate({bottom: '30%', queue:  false},300)
 
-            $("#inf_ob_l").animate({bottom: '100', queue:  true},300)
+            $("#inf_ob_l").animate({bottom: '25%', queue:  true},300)
 
-          }, 5400)
+          }, 3500)
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"look_l")
-          }, 7700)
+          }, 5500)
 
         } else {
 showInfAgent(simple_inf.agents[0],"straight")
-                  setTimeout(function() {
+
+        setTimeout(function() {
 
           showInfAgent(simple_inf.agents[0],"point_r")
 
-          $("#inf_ob_r").animate({bottom: '140', queue:  false},300)
+          $("#inf_ob_r").animate({bottom: '30%', queue:  true},300)
 
-          $("#inf_ob_r").animate({bottom: '100', queue:    true},300)
+          $("#inf_ob_r").animate({bottom: '25%', queue:    true},300)
 
-        }, 1500)
+        }, 000)
 
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"look_r")
 
-          }, 4300)
+          }, 2000)
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"point_r")
 
-            $("#inf_ob_r").animate({bottom: '140', queue:  false},300)
+            $("#inf_ob_r").animate({bottom: '30%', queue:  false},300)
 
-            $("#inf_ob_r").animate({bottom: '100', queue:    true},300)
+            $("#inf_ob_r").animate({bottom: '25%', queue:    true},300)
 
-          }, 5400)
+          }, 3500)
 
           setTimeout(function() {
             showInfAgent(simple_inf.agents[0],"look_r")
-          }, 7700)
+          }, 5500)
         };
 
       } else if (simple_inf.agentOrient[0][0] == "down") {

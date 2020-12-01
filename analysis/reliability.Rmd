@@ -8,60 +8,92 @@ knitr::opts_chunk$set(echo = F, warning = F, message = F)
 
 library(tidyverse)
 library(brms)
+library(tidybayes)
+library(ggpubr)
 ```
 
 ```{r}
 
-data <- read_csv("../data/data.csv")
+data <- bind_rows(
+data_r1 <- read_csv("../data/data_r1.csv")%>%mutate(id = paste(id,"r1",sep = "_")) ,
+data_r2 <- read_csv("../data/data_r2.csv")%>%mutate(id = paste(id,"r2",sep = "_"))
+)%>%
+  filter(task !="training")
+  
 
 ```
 
 # Total sample size
 
-```{r}
-data%>%
-  group_by(subage)%>%
-  summarise(n= length(unique(id)))%>%
-  kable()
-
-```
-
 # Sample size with two test days
 
 ```{r}
 data %>%
-  group_by(subage,id)%>%
+  group_by(task,id)%>%
   summarise(testdays = length(unique(test_day)))%>%
   filter(testdays == 2)%>%
-  summarise(complete_retest_data = length(id))%>%
-  kable()
+  summarise(complete_retest_data = length(id))
 ```
 
+# Simple correaltions
 
 ```{r}
-# data %>%
-#   group_by(id,test_day)%>%
-#   summarise(n())%>%
-#   arrange(id,test_day)
- 
+reli <- data%>%
+  filter(task != "training")%>%
+  droplevels()%>%
+  group_by(id,task, test_day)%>%
+  summarise(mean = mean(correct))%>%
+  spread(test_day, mean)%>%
+  na.omit()%>%
+  rename("Day1" = `1`,
+         "Day2" = `2`)%>%
+  group_by(task)%>%
+  summarize(reli = cor.test(Day1,Day2)$estimate,
+            lci = cor.test(Day1,Day2)$conf.int[1],
+            uci = cor.test(Day1,Day2)$conf.int[2],
+            p = cor.test(Day1,Day2)$p.value)%>%
+  mutate_if(is.numeric, round, digits = 2)
+
+reli
 ```
 
-
 ```{r}
-# data%>%
-#   group_by(test_day,task)%>%
-#   summarise(n= length(unique(id)))
+p_rel_data <- data%>%
+  filter(task != "training")%>%
+  droplevels()%>%
+  group_by(id,task, test_day)%>%
+  summarise(mean = mean(correct))%>%
+  spread(test_day, mean)%>%
+  na.omit()%>%
+  rename("day1" = `1`,
+         "day2" = `2`)
+
+ggplot(p_rel_data, aes(x = day1, y = day2))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_point(alpha = .5)+
+  facet_wrap( ~ task)+
+  stat_cor(method = "pearson",  aes(x = day1, y = day2), size = 2)+
+  theme_minimal()+
+  theme(aspect.ratio = 1)
 ```
 
 # Models
 
-## correlations
 
+
+
+
+
+
+
+
+
+
+
+## Combined model
 
 ```{r}
-# card sorting
-
-complete_data <- reli_data %>%
+complete_data <- data %>%
   group_by(subage,id)%>%
   summarise(testdays = length(unique(test_day)))%>%
   filter(testdays == 2)%>%
@@ -70,10 +102,10 @@ complete_data <- reli_data %>%
 reli_data <- data%>%
   filter(task != "training", 
          id %in% complete_data)%>%
-  mutate(test_day = ifelse(test_day == 1, "day1", "day2"))
+  mutate(test_day = ifelse(test_day == 1, "day1", "day2"),
+         z_trial = scale(trial))
 
-
-rel_model <- brm(correct ~ (test_day|task/id),
+rel_model <- brm(correct ~ (1|test_day) + (1| task) + (1|id),
                  data = reli_data, 
                  family = bernoulli(),
                  control = list(adapt_delta = 0.9),
@@ -81,53 +113,172 @@ rel_model <- brm(correct ~ (test_day|task/id),
           chains = 4,
           cores = 4,
           save_all_pars = F,
-          iter = 2000)
+          iter = 5000)
 
 summary(rel_model)
 
-task <- as_tibble(ranef(rel_model)$task, rownames = "task")%>%
-  select(task,Estimate.Intercept, Estimate.test_dayday2)%>%
-  rename("Day1_int" = Estimate.Intercept,
-         "Day2_int" = Estimate.test_dayday2)%>%
-  mutate(task = str_replace(task, "card_sorting", "cardsorting"),
-         task = str_replace(task, "mutual_exclusivity", "mutualexclusivity"))
-  
 
-id <- as_tibble(ranef(rel_model)$`task:id`, rownames = "id")%>%
-  select(id,Estimate.Intercept, Estimate.test_dayday2)%>%
-  rename("Day1" = Estimate.Intercept,
-         "Day2" = Estimate.test_dayday2)%>%
-  mutate(id = str_replace(id, "card_sorting", "cardsorting"),
-         id = str_replace(id, "mutual_exclusivity", "mutualexclusivity"),
-         Day1 = plogis(Day1),
-         Day2 = plogis(Day2))%>%
-  separate(id, c("task", "id"), sep = "_")
+draws1 <- rel_model %>%
+  spread_draws(b_Intercept, day[test_day,], task[`test_day:test_day`,],id[`test_day:test_day:id`,])
+#   separate(id, c("id","round"), sep = "_", extra = "merge")
+# 
+# draws2 <- rel_model %>%
+#   spread_draws(b_Intercept,`r_id:test_day`[`id:test_day`,])%>%
+#   separate(`id:test_day`, c("id","go"), sep = "_", extra = "merge")%>%
+#   separate(go, c("round","day"), sep = "_", extra = "merge")
+# 
+# draws3 <- rel_model %>%
+#   spread_draws(b_Intercept,`r_id:test_day:task`[`id:test_day:task`,])%>%
+#   separate(`id:test_day:task`, c("id","go"), sep = "_", extra = "merge")%>%
+#   separate(go, c("round","go"), sep = "_", extra = "merge")%>%
+#   separate(go, c("day","task"), sep = "_", extra = "merge")
+# 
+# draws <- draws1 %>%
+#   left_join(draws2) %>%
+#   left_join(draws3)
 
-left_join(id, task)%>%
-  mutate(est_1 = plogis(Day1_int + Day1),
-         est_2 = plogis(Day2_int + Day2))%>%
+p_re_est <- draws1%>%
+  mutate(perf = b_Intercept + r_id + r_test_day + r_task)%>%
+  group_by(id, test_day,task )%>%
+  median_qi(perf)%>%
+  mutate(perf = plogis(perf))
+
+saveRDS(p_re_est,"../saves/p_re_est.rds")
+
+p_data <- data %>%
+  filter(id %in% complete_data)%>%
+  group_by(task, test_day,id)%>%
+  summarise(mean = mean(correct))%>%
+  mutate(day = paste("day",test_day,sep = ""))
+
+ggplot()+
+  geom_point(data = p_re_est, aes (x = id, y = perf), alpha = .5)+
+  geom_point(data = p_data, aes (x = id, y = mean), alpha = .5, col = "firebrick")+
+  facet_grid(day~task)+
+  theme_minimal()
+
+p_cor <- p_re_est %>%
+  select(task, id, test_day,perf)%>%
+  spread(test_day, perf)%>%
   group_by(task)%>%
-  summarise(cor = cor(est_1, est_2))
+  summarise(cor = cor(day1, day2))%>%
+  left_join(reli)
+
+p_re_est %>%
+  select(task, id, test_day,perf)%>%
+  spread(test_day, perf)%>%
+  ggplot(aes(x = day1, y = day2))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_point(alpha = .5)+
+  geom_point(data = p_rel_data, aes(x = day1, y = day2), alpha = .5, col = "firebrick")+
+  facet_wrap( ~ task)+
+  stat_cor(method = "pearson",  aes(x = day1, y = day2), size = 2)+
+  theme_minimal()+
+  theme(aspect.ratio = 1)
 
 ```
-
-
-## reliability
+# Ignore below 
+## Separate models
 
 ```{r}
-# card sorting
+reli_data_1 <- reli_data%>%
+  filter(test_day == "day1")
 
-cor_model <- brm(correct ~ 1 + (task|id) + (task|item),
-                    data = data, family = bernoulli(),
-          control = list(adapt_delta = 0.99),
+
+
+rel_model_1 <- brm(correct ~ (z_trial|id/task),
+                 data = reli_data_1, 
+                 family = bernoulli(),
+                 control = list(adapt_delta = 0.9),
           sample_prior = F,
           chains = 4,
           cores = 4,
-          save_all_pars = TRUE,
-          iter = 2000)
+          save_all_pars = F,
+          iter = 5000)
 
-summary(cor_model)
+summary(rel_model_1)
+
+
+draws_rel1_1 <- rel_model_1 %>%
+  spread_draws(b_Intercept,r_id[id,])%>%
+  separate(id, c("id","round"), sep = "_", extra = "merge")
+
+draws_rel1_2 <- rel_model_1 %>%
+  spread_draws(b_Intercept,`r_id:task`[`id:task`,])%>%
+  separate(`id:task`, c("id","go"), sep = "_", extra = "merge")%>%
+  separate(go, c("round","task"), sep = "_", extra = "merge")
+
+draws_rel1 <- draws_rel1_1 %>%
+  left_join(draws_rel1_2)%>%
+  mutate(perf = b_Intercept + r_id + `r_id:task`)%>%
+  group_by(id,task )%>%
+  median_qi(plogis(perf))%>%
+  mutate(day1 = `plogis(perf)`)
 
 ```
 
+```{r}
+reli_data_2 <- reli_data%>%
+  filter(test_day == "day2")
+
+
+
+rel_model_2 <- brm(correct ~ (z_trial|id/task),
+                 data = reli_data_2, 
+                 family = bernoulli(),
+                 control = list(adapt_delta = 0.9),
+          sample_prior = F,
+          chains = 4,
+          cores = 4,
+          save_all_pars = F,
+          iter = 5000)
+
+summary(rel_model_2)
+
+
+draws_rel2_1 <- rel_model_2 %>%
+  spread_draws(b_Intercept,r_id[id,])%>%
+  separate(id, c("id","round"), sep = "_", extra = "merge")
+
+draws_rel2_2 <- rel_model_2 %>%
+  spread_draws(b_Intercept,`r_id:task`[`id:task`,])%>%
+  separate(`id:task`, c("id","go"), sep = "_", extra = "merge")%>%
+  separate(go, c("round","task"), sep = "_", extra = "merge")
+
+draws_rel2 <- draws_rel2_1 %>%
+  left_join(draws_rel2_2)%>%
+  mutate(perf = b_Intercept + r_id + `r_id:task`)%>%
+  group_by(id,task )%>%
+  median_qi(plogis(perf))%>%
+  mutate(day2 = `plogis(perf)`)
+
+```
+
+```{r}
+p_cor %>%left_join(
+  draws_rel1 %>%
+  select(id, task, day1)%>%
+  left_join(draws_rel2%>%
+  select(id, task, day2))%>%
+    group_by(task)%>%
+    summarise(cor_2_models = cor(day1, day2))
+    )
+  
+```
+
+
+```{r}
+draws_rel1 %>%
+  select(id, task, day1)%>%
+  left_join(draws_rel2%>%
+  select(id, task, day2))%>%
+  ggplot(aes(x = day1, y = day2))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_point(alpha = .5)+
+  geom_point(data = p_rel_data, aes(x = day1, y = day2), alpha = .5, col = "firebrick")+
+  facet_wrap( ~ task)+
+  stat_cor(method = "pearson",  aes(x = day1, y = day2), size = 2)+
+  theme_minimal()+
+  theme(aspect.ratio = 1)
+```
 

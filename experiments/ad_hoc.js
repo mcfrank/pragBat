@@ -21,7 +21,7 @@ var adhoc = {
   end: function() {
     // Show the finish slide.
     showSlide("select");
-    setTimeout(function() { turk.submit(adhoc) }, 500);
+    setTimeout(function() { downloadData(adhoc.data) }, 500);
   },
 
 
@@ -51,13 +51,13 @@ var adhoc = {
         };
 
        if (adhoc.infPos[0] == "left"){
-        var LeftFruit = adhoc.stimulus[0]+"_inf";
-        var RightFruit = adhoc.stimulus[0]+"_dis";
+        var leftFruit = adhoc.stimulus[0]+"_inf";
+        var rightFruit = adhoc.stimulus[0]+"_dis";
 
     } else  {
 
-        var LeftFruit = adhoc.stimulus[0]+"_dis";
-        var RightFruit = adhoc.stimulus[0]+"_inf";
+        var leftFruit = adhoc.stimulus[0]+"_dis";
+        var rightFruit = adhoc.stimulus[0]+"_inf";
     }
 
 
@@ -68,9 +68,9 @@ var adhoc = {
         subage: train.subage,
         task: "ad_hoc_implicature",
         trial: adhoc.trial[0],
-        agent: adhoc.agents[0],
-        leftObject: LeftFruit,
-        rightObject: RightFruit,
+        item: adhoc.stimulus[0],
+        leftObject: leftFruit,
+        rightObject: rightFruit,
         correct_location: adhoc.infPos[0],
         pick: pick,
         correct: correct
@@ -138,7 +138,7 @@ eat2: function(event) {
 setTimeout(function() {
      sourceSound("sound/adhoc/"+adhoc.stimulus[0]+".mp3");
       playSound();
-}, 4000);
+}, 3000);
 
     } else {
 

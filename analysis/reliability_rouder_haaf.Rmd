@@ -1,0 +1,96 @@
+---
+title: "Prag Bat reliability"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+
+library(tidyverse)
+library(brms)
+library(tidybayes)
+library(ggpubr)
+```
+
+# Loading data
+```{r}
+
+raw_data <- bind_rows(
+read_csv("../data/data_r1.csv")%>%mutate(id = paste(id,"r1",sep = "_")) ,
+read_csv("../data/data_r2.csv")%>%mutate(id = paste(id,"r2",sep = "_"))
+)%>%
+  filter(task !="training")
+
+
+complete_ids <- raw_data %>%
+  group_by(subage,id)%>%
+  summarise(testdays = length(unique(test_day)))%>%
+  filter(testdays == 2)%>%
+  pull(id)
+
+data <- raw_data%>%
+  filter(task != "training", 
+         id %in% complete_ids)%>%
+  mutate(test_day = ifelse(test_day == 1, "day1", "day2"),
+         z_trial = scale(trial))
+
+```
+# Descriütives
+
+```{r}
+data %>%
+  group_by(task)%>%
+  summarise(n = length(unique(id)))
+```
+
+# Simple correaltions
+
+```{r}
+data%>%
+  droplevels()%>%
+  group_by(id,task, test_day)%>%
+  summarise(mean = mean(correct))%>%
+  spread(test_day, mean)%>%
+  group_by(task)%>%
+  summarize(reli = cor.test(day1,day2)$estimate,
+            lci = cor.test(day1,day2)$conf.int[1],
+            uci = cor.test(day1,day2)$conf.int[2],
+            p = cor.test(day1,day2)$p.value)%>%
+  mutate_if(is.numeric, round, digits = 2)
+
+```
+## Visualize simple correlations
+```{r}
+data%>%
+  droplevels()%>%
+  group_by(id,task, test_day)%>%
+  summarise(mean = mean(correct))%>%
+  spread(test_day, mean)%>%
+  ggplot( aes(x = day1, y = day2))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_count(alpha = .5)+
+  facet_wrap( ~ task)+
+  stat_cor(method = "pearson",  aes(x = day1, y = day2), size = 2)+
+  theme_minimal()+
+  theme(aspect.ratio = 1)
+```
+
+# Model by task sensu Rouder and Haaf
+
+## Task: Mutual exclusivity
+```{r}
+me_data <- data %>%
+  filter(task == "mutual_exclusivity")
+```
+
+
+
+
+
+
+
+
+
+
+
+

@@ -21,7 +21,7 @@ var me = {
   end: function() {
     // Show the finish slide.
     showSlide("select");
-    setTimeout(function() { turk.submit(me) }, 500);
+    setTimeout(function() { downloadData(me.data) }, 500);
   },
 
 
@@ -73,7 +73,7 @@ var me = {
         subage: train.subage,
         task: "mutual_exclusivity",
         trial: me.trial[0],
-        agent: me.agents[0],
+        item: me.agents[0],
         leftObject: LeftFruit,
         rightObject: RightFruit,
         correct_location: me.novelPos[0],

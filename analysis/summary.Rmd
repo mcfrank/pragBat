@@ -25,6 +25,8 @@ library(tidyboot)
 library(lubridate)
 library(ggpubr)
 library(lavaan)
+library(blavaan)
+library(semPlot)
 ```
 
 ```{r, include=FALSE}
@@ -262,18 +264,179 @@ f2
 Data
 
 ```{r}
-lavaan_data <- filter(data, round == "R1", test_day == 1) %>%
+lavaan_data_1 <- filter(data, round == "R1") %>%
   group_by(id, task) %>%
   summarise(correct = mean(correct)) %>%
   pivot_wider(names_from = task, values_from = correct)
+
+lavaan_data_2 <- filter(data, round == "R2") %>%
+  group_by(id, task) %>%
+  summarise(correct = mean(correct)) %>%
+  pivot_wider(names_from = task, values_from = correct)
+
+lavaan_data_r1 <- filter(data, round == "R1") %>%
+  group_by(test_day,id, task) %>%
+  summarise(correct = mean(correct)) %>%
+  pivot_wider(names_from = c(task,test_day), values_from = correct)%>%
+  na.omit()
+
+lavaan_data_r2 <- filter(data, round == "R2") %>%
+  group_by(test_day, id, task) %>%
+  summarise(correct = mean(correct)) %>%
+  pivot_wider(names_from = c(task,test_day), values_from = correct)%>%
+  na.omit()
+```
+### Reliability
+
+```{r}
+model_rel_1 <- '
+pragmatic_1  =~ informativeness_1  + mutual_exclusivity_1 + novelty_1 + preference_1
+pragmatic_2  =~ informativeness_2  + mutual_exclusivity_2 + novelty_2 + preference_2
+
+pragmatic_1 ~~ pragmatic_2
+
+informativeness_1 ~~ informativeness_2
+mutual_exclusivity_1 ~~ mutual_exclusivity_2
+novelty_1 ~~ novelty_2
+preference_1 ~~ preference_2
+'
+
+fit_rel_1 <- cfa(model_rel_1, data=lavaan_data_r1, std.lv = TRUE)
+
+summary(fit_rel_1,  ci = T)
+
+```
+
+```{r}
+model_rel_2 <- '
+pragmatic_1  =~ ad_hoc_implicature_1  + mutual_exclusivity_1 + simple_inf_1 + discourse_continuity_1
+pragmatic_2  =~ ad_hoc_implicature_2  + mutual_exclusivity_2 + simple_inf_2 + discourse_continuity_2
+
+pragmatic_1 ~~ pragmatic_2
+
+ad_hoc_implicature_1 ~~ ad_hoc_implicature_2
+mutual_exclusivity_1 ~~ mutual_exclusivity_2
+simple_inf_1 ~~ simple_inf_2
+discourse_continuity_1 ~~ discourse_continuity_2
+
+'
+
+fit_rel_2 <- cfa(model_rel_2, data=lavaan_data_r2, std.lv = TRUE)
+
+summary(fit_rel_2, ci = T)
+
+semPaths(fit_rel_2, "std")
+
+fitmeasures(fit_rel_2)
+
+```
+
+### Relations between constructs
+
+```{r}
+model_1 <- '
+pragmatic  =~ informativeness  + mutual_exclusivity + novelty + preference
+ef  =~ card_sorting
+'
+
+fit_1 <- cfa(model_1, data=lavaan_data_1, std.lv = TRUE)
+
+summary(fit_1, ci = T)
+
+semPaths(fit_1, "std")
+
+fitmeasures(fit_1)
+```
+
+```{r}
+model_2 <- '
+pragmatic  =~ ad_hoc_implicature  + mutual_exclusivity + simple_inf + discourse_continuity
+ef  =~ card_sorting
+'
+
+fit_2 <- sem(model_2, data=lavaan_data_2)
+
+summary(fit_2,  standardized = T)
+
+fitmeasures(fit_2, c("cfi", "rmsea"))
+
+semPaths(fit_2, what = "paths", whatLabels= "stand", rotation = 1)
+
+### compare models
+
+model_2_2 <- '
+pragmatic  =~ ad_hoc_implicature  + mutual_exclusivity + simple_inf + discourse_continuity + card_sorting
+'
+
+fit_2_2 <- sem(model_2_2, data=lavaan_data_2)
+
+summary(fit_2_2,  standardized = T)
+
+fitmeasures(fit_2_2, c("cfi", "rmsea"))
+
+anova(fit_2,fit_2_2)
+
 ```
 
 
-```{r}
-model1 <- 'pragmatic  =~ informativeness + novelty + preference + mutual_exclusivity 
-          ef =~ card_sorting'
 
-fit <- cfa(model1, data=lavaan_data)
-summary(fit)
+### Bayesian estimation
+
+#### Reliability
+```{r}
+bfit_rel_1<- bcfa(model_rel_1, 
+                   data=lavaan_data_r1, 
+                   std.lv = TRUE,
+                   n.chains = 4,
+                   burnin = 2000,
+                   sample = 4000)
+
+summary(bfit_rel_1, ci = T)
+
+semPaths(bfit_rel_1, "std")
+```
+
+```{r}
+
+bfit_rel_2 <- bcfa(model_rel_2, 
+                   data=lavaan_data_r2, 
+                   std.lv = TRUE,
+                   n.chains = 4,
+                   burnin = 2000,
+                   sample = 4000)
+
+summary(bfit_rel_2, ci = T)
+
+semPaths(bfit_rel_2, "std")
+```
+
+#### Relations between constructs
+
+```{r}
+bfit_1 <- bcfa(model_1, 
+                   data=lavaan_data_1, 
+                   std.lv = TRUE,
+                   n.chains = 4,
+                   burnin = 2000,
+                   sample = 4000)
+
+summary(bfit_1, ci = T)
+
+
+
+```
+
+```{r}
+bfit_2 <- bcfa(model_2, 
+                   data=lavaan_data_2, 
+                   std.lv = TRUE,
+                   n.chains = 4,
+                   burnin = 2000,
+                   sample = 4000
+               )
+
+summary(bfit_2, ci = T)
+
+semPaths(bfit_2, "std")
 ```
 

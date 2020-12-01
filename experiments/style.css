@@ -3,39 +3,61 @@
 
 /* We want the page to sit flush inside the browser window - that means no margins or padding. Also, use a nice-looking serif font. */
 body {
-    width: 972.8px;
-	height: 729px;
+    width: 100%;
+	height: 100%;
     padding: 0;
 	margin: 0;
-	font-family: Palatino Linotype, Bookman Antiqua, Palatino, serif;
+	font-family: Gill Sans ,sans-serif;
 	font-size: 16px;
 	line-height: 20px;
 }
 
 /* We manage display using "slides". A slide is a <code>div</code> that takes up the entire page. Only one slide should be visible at a time. Navigation between slides is most sensibly accomplished using using buttons, rather than keyboard events. */
 .slide {
-	width: 1024px;
-	height: 729px;
+	width: 100%;
+	height: 100%;
 	display: none;
 	position: absolute;
 	margin: 0;
 }
 
 .background {
-	width: 1024px;
-	height: 660px;
+	width: 100%;
+	height: 100%;
     opacity: 0.3;
 }
 
 .background_dis {
 	width: 100%;
-	height: 650px;
+	height: 80%;
     opacity: 0.5;
     z-index: 1;
 }
 
 
-input, select, button {font-family: Georgia; font-size: 14px;}
+.barl{
+    position:fixed;
+    left:0;
+    top:0;
+    background-color:#c6d325;
+    width:10%;
+    height:100%;
+}
+
+
+.barr{
+    position:fixed;
+    right:0;
+    top:0;
+    background-color:#00b1ea;
+    width:10%;
+    height:100%;
+}
+
+
+
+
+input, select, button {font-family:  Gill Sans ,sans-serif; font-size: 14px;}
 
 button {
 	background: url(images/button-gradient.png);
@@ -106,20 +128,23 @@ nextButton {
 	padding-left: 5px;
 	padding-right: 5px;
 	height: 50px;
-	min-width: 100px;
-    position: absolute;
-    bottom: 0px;
-    left: 430px;
-    z-index: 2
+	width: 150px;
+  line-height: 50px;
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  margin-left: -75px;
+  z-index: 2;
+      font-size: 150%;
+
 }
 
 nextButton:active {
 	background: none;
 	background-color: #c9c9c9;
-    bottom: 10px;
     position: absolute;
-    bottom: 0px;
-    left: 430px;
+    bottom: 10%;
+    left: 50%;
     z-index: 2
 }
 
@@ -134,7 +159,8 @@ nextButton[disabled] {
 
 trainButton {
     position: absolute;
-    left:350;
+    transform: translateX(-50%);
+    left:50%;
     top:100;
     width:200;
     font-family: sans-serif;
@@ -152,7 +178,8 @@ trainButton {
 
 prefButton {
     position: absolute;
-    left:150;
+    transform: translateX(-50%);
+    left:35%;
     top:200;
     width:200;
     font-family: sans-serif;
@@ -169,7 +196,8 @@ prefButton {
 
 meButton {
     position: absolute;
-    left:150;
+    transform: translateX(-50%);
+    left:35%;
     top:200;
     width:200;
     font-family: sans-serif;
@@ -186,7 +214,8 @@ meButton {
 
 adhocButton {
     position: absolute;
-    left:550;
+    transform: translateX(-50%);
+    left:65%;
     top:300;
     width:200;
     font-family: sans-serif;
@@ -204,7 +233,8 @@ adhocButton {
 
 novButton {
     position: absolute;
-    left:550;
+    transform: translateX(-50%);
+    left:65%;
     top:300;
     width:200;
     font-family: sans-serif;
@@ -223,7 +253,8 @@ novButton {
 
 infButton {
     position: absolute;
-    left:550;
+    transform: translateX(-50%);
+    left:65%;
     top:200;
     width:200;
     font-family: sans-serif;
@@ -241,7 +272,8 @@ infButton {
 
 disconButton {
     position: absolute;
-    left:150;
+    transform: translateX(-50%);
+    left:35%;
     top:300;
     width:200;
     font-family: sans-serif;
@@ -258,7 +290,8 @@ disconButton {
 
 sortButton {
     position: absolute;
-    left:350;
+    transform: translateX(-50%);
+    left:50%;
     top:400;
     width:200;
     font-family: sans-serif;
@@ -277,18 +310,21 @@ sortButton {
 
 .moveButton {
     position: absolute;
-    bottom: 0px;
-    left: 435px;
-    width: 120px;
-    z-index: 3
+    bottom: 110px;
+    left: 50%;
+    margin-left: -75px;
+    width: 150px;
+    z-index: 4
 }
 
 
 .agent {
     position: absolute;
-    bottom: 245px;
-    left: 320px;
+    bottom: 365px;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
+    z-index: 2;
 }
 
 .point_agent_r {
@@ -296,6 +332,7 @@ sortButton {
     bottom: 245px;
     left: 280px;
     width: 350px;
+    z-index: 2;
 }
 
 
@@ -304,6 +341,7 @@ sortButton {
     bottom: 245px;
     left: 360px;
     width: 350px;
+    z-index: 2;
 }
 
 .agent_eat {
@@ -314,30 +352,52 @@ sortButton {
 
 .hill {
     position: absolute;
-    bottom: 5px;
-    left: 320px;
+    bottom: 125px;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
-    z-index: 1
+    z-index: 3
 }
 
 
+.circle
+    {
+    width:150px;
+    height:150px;
+    border-radius:100px;
+    font-size:18px;
+    line-height:30px;
+    text-align:center;
+    background:#eeeeee;
+    color: #11726b;
+    display: table;
+    border: 3px solid #11726b;
+    }
+
+    .innertext
+    {
+       display: table-cell;
+       vertical-align: middle;
+     }
 
 .adhoc_agent {
     position: absolute;
-    bottom: 361px;
-    left: 370px;
+    bottom: 45%;
+    left: 50%;
+    margin-left: -150px;
     width: 300px;
+    z-index: 2;
 }
 
 
 
 .window {
     position: absolute;
-    bottom: 350px;
-    left: 320px;
+    bottom: 45%;
+    left: 50%;
+    margin-left: -200px;
     width: 400px;
-    z-index: 1;
-    opacity: 0.6
+    z-index: 3;
 }
 
 
@@ -349,8 +409,9 @@ sortButton {
 
 .fruit_r {
     position: absolute;
-    bottom: 225px;
-    left: 747px;
+    bottom: 345px;
+    right: 20%;
+    margin-right: -75px;
     width: 150px;
     z-index: 2
 }
@@ -358,8 +419,9 @@ sortButton {
 
 .fruit_l {
     position: absolute;
-    bottom: 225px;
-    left: 100px;
+    bottom: 345px;
+    left: 20%;
+    margin-left: -75px;
     width: 150px;
     z-index: 2
 }
@@ -402,16 +464,18 @@ sortButton {
 
 .table_r {
     position: absolute;
-    bottom: 80px;
-    left: 679px;
+    bottom: 200px;
+    right: 20%;
+    margin-right: -140px;
     width: 280px;
     z-index: 0
 }
 
 .table_l {
     position: absolute;
-    bottom: 80px;
-    left: 30px;
+    bottom: 200px;
+    left: 20%;
+    margin-left: -140px;
     width: 280px;
     z-index: 0
 }
@@ -419,35 +483,39 @@ sortButton {
 
 .inf_ob_r {
     position: absolute;
-    bottom: 100px;
-    left: 665px;
+    bottom: 25%;
+    right: 20%;
+    margin-right: -175px;
     width: 350px;
     z-index: 0
 }
 
 .inf_ob_l {
     position: absolute;
-    bottom: 100px;
-    left: 15px;
+    bottom: 25%;
+    left: 20%;
+    margin-left: -175px;
     width: 350px;
     z-index: 0
 }
 
 
 .choice_inf_ob_r {
-    position: absolute;
-    bottom: 100px;
-    left: 665px;
-    width: 350px;
-    z-index: 0
+  position: absolute;
+  bottom: 25%;
+  right: 20%;
+  margin-right: -175px;
+  width: 350px;
+  z-index: 0
 }
 
 .choice_inf_ob_l {
-    position: absolute;
-    bottom: 100px;
-    left: 15px;
-    width: 350px;
-    z-index: 0
+  position: absolute;
+  bottom: 25%;
+  left: 20%;
+  margin-left: -175px;
+  width: 350px;
+  z-index: 0
 }
 
 
@@ -458,16 +526,18 @@ sortButton {
 
 .object_r {
     position: absolute;
-    bottom: 0px;
-    left: 665px;
+    bottom: 5%;
+    right: 20%;
+    margin-right: -175px;
     width: 350px;
     z-index: 0
 }
 
 .object_l {
     position: absolute;
-    bottom: 0px;
-    left: 15px;
+    bottom: 5%;
+    left: 20%;
+    margin-left: -175px;
     width: 350px;
     z-index: 0
 }
@@ -477,7 +547,8 @@ sortButton {
 .target_l {
     position: absolute;
     bottom: 300px;
-    left: 100px;
+    transform: translateX(-50%);
+    left:25%;
     width: 200px;
     z-index: 0
 }
@@ -485,7 +556,8 @@ sortButton {
 .target_r {
     position: absolute;
     bottom: 300px;
-    left: 700px;
+    transform: translateX(-50%);
+    left:75%;
     width: 200px;
     z-index: 0
 }
@@ -494,21 +566,46 @@ sortButton {
 .sample {
     position: absolute;
     bottom: 100px;
-    left: 400px;
+    transform: translateX(-50%);
+    left:50%;
     width: 200px;
     z-index: 0
 }
 
 
+.rmts_sample {
+    position: absolute;
+    top: 110px;
+    transform: translateX(-50%);
+    left:50%;
+    width: 200px;
+    z-index: 0
+}
 
+.match_l {
+    position: absolute;
+    top: 410px;
+    transform: translateX(-50%);
+    left:30%;
+    width: 200px;
+    z-index: 0
+}
+
+.match_r {
+    position: absolute;
+    top: 410px;
+    transform: translateX(-50%);
+    left:70%;
+    width: 200px;
+    z-index: 0
+}
 
 /* ## Experiment-specific styles */
 /* This stuff will vary by experiment. */
 
 #logo-text {
-  font-weight: bold;
   text-align: center;
-    font-size: 24;
+    font-size: 200%;
 }
 
 #instructions {
@@ -525,21 +622,21 @@ sortButton {
 }
 
 .block-text {
-  width: 600px;
+  width: 60%;
   text-align: justify;
   margin: 0 auto;
   margin-bottom: 1em;
 }
 
 .block-text2 {
-  width: 600px;
+  width: 75%;
   text-align: justify;
   margin: 0 auto;
   margin-bottom: 1em;
 }
 
 .block-text3 {
-  width: 600px;
+  width: 75%;
   text-align: center;
   margin: 0 auto;
   margin-bottom: 1em;
@@ -550,12 +647,39 @@ sortButton {
   font-size: 24px;
   width: 500px;
   text-align: center;
-  font-family: "Times New Roman";
+  font-family: Gill Sans ,sans-serif;
   margin: 0 auto;
   margin-bottom: 1em;
   position: absolute;
   top: 100px;
-  left: 245px;
+  transform: translateX(-50%);
+  left:50%;
+}
+
+.rmts_text {
+  font-size: 20px;
+  width: 75%;
+  text-align: center;
+  font-family: "Times New Roman";
+  margin: 0 auto;
+  margin-bottom: 1em;
+  position: absolute;
+  top: 20px;
+  transform: translateX(-50%);
+  left:50%;
+}
+
+.rmts_text_bottom {
+  font-size: 20px;
+  width: 75%;
+  text-align: center;
+  font-family: "Times New Roman";
+  margin: 0 auto;
+  margin-bottom: 1em;
+  position: absolute;
+  top: 50px;
+  transform: translateX(-50%);
+  left:50%;
 }
 
 
@@ -576,8 +700,9 @@ sortButton {
 
 .selector_l {
     position: absolute;
-    bottom: 100px;
-    left: 10px;
+    bottom: 25%;
+    left: 20%;
+    margin-left: -177.5px;
     width: 355px;
     height: 380px;
     z-index: 3
@@ -595,8 +720,9 @@ sortButton {
 
 .selector_r {
     position: absolute;
-    bottom: 100px;
-    left: 660px;
+    bottom: 25%;
+    right: 20%;
+    margin-right: -177.5px;
     width: 355px;
     height: 380px;
     z-index: 3
@@ -622,34 +748,39 @@ sortButton {
 }
 
 
-#item_r {
-    position: absolute;
-    bottom: 450px;
-    left: 700px;
-    width: 150px;
-    z-index: 2
-}
-
 #item_l {
     position: absolute;
-    bottom: 450px;
-    left: 130px;
+    bottom: 60%;
+    left: 25%;
+    margin-left: -75px;
     width: 150px;
     z-index: 2
 }
 
 #item_m {
     position: absolute;
-    bottom: 550px;
-    left: 405px;
+    bottom: 75%;
+    left: 50%;
+    margin-left: -75px;
     width: 150px;
     z-index: 2
 }
 
+#item_r {
+    position: absolute;
+    bottom: 60%;
+    left: 75%;
+    margin-left: -75px;
+    width: 150px;
+    z-index: 2
+}
+
+
 .agent_transition {
     position: absolute;
     bottom: 50px;
-    left: 125px;
+    left: 50%;
+    margin-left: -350px;
     width: 700px;
     z-index: 2;
 }
@@ -657,8 +788,9 @@ sortButton {
 
 .discon_agent {
     position: absolute;
-    bottom: 150px;
-    left: 300px;
+    bottom: 25%;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
     z-index: 2;
 }
@@ -693,38 +825,43 @@ div#preload { display: none; }
 }
 
 .look_agent_r_inf {
-    position: absolute;
-    bottom: 350px;
-    left: 350px;
-    width: 350px;
+  position: absolute;
+  bottom: 55%;
+  left: 50%;
+  margin-left: -175px;
+  width: 350px;
 }
 
 
 .look_agent_l_inf {
-    position: absolute;
-    bottom: 350px;
-    left: 350px;
-    width: 350px;
+  position: absolute;
+  bottom: 55%;
+  left: 50%;
+  margin-left: -175px;
+  width: 350px;
 }
 
 .agent_inf {
     position: absolute;
-    bottom: 350px;
-    left: 350px;
+    bottom: 55%;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
 }
 
 .point_agent_r_inf {
-    position: absolute;
-    bottom: 350px;
-    left: 310px;
-    width: 350px;
+  position: absolute;
+  bottom: 55%;
+  left: 50%;
+  margin-left: -175px;
+  width: 350px;
 }
 
 
 .point_agent_l_inf {
-    position: absolute;
-    bottom: 350px;
-    left: 390px;
-    width: 350px;
+  position: absolute;
+  bottom: 55%;
+  left: 50%;
+  margin-left: -175px;
+  width: 350px;
 }
